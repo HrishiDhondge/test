@@ -3,30 +3,21 @@ from pyspark.sql import SparkSession
 import os
 import subprocess
 
-# Check where java is installed
-#java_path = subprocess.run(["update-alternatives", "--list", "java"], capture_output=True, text=True).stdout.strip()
-
-# Extract JAVA_HOME path
-#java_home = os.path.dirname(os.path.dirname(java_path))
-#os.environ["JAVA_HOME"] = java_home
-
-# Optional: sanity check
-#print(f"JAVA_HOME set to: {java_home}")
-
-#print(os.system("ls /usr/lib/jvm/"))
-#os.system("ls /usr/lib/jvm/java-11-openjdk-amd64/bin/java")
-#os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
 
 @st.cache_resource
 def setup_java():
     java_dir = "/tmp/java-11"
+    java_url = "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.23+9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.23_9.tar.gz"
 
     # Only download & extract if not already done
     if not os.path.exists(java_dir):
         os.makedirs(java_dir, exist_ok=True)
         # Download OpenJDK 11 (Adoptium build here, but you can change URL)
-        os.system("wget -O /tmp/openjdk11.tar.gz https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.23+9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.23_9.tar.gz")
-        os.system(f"tar -xzf /tmp/openjdk11.tar.gz -C {java_dir} --strip-components=1")
+        #os.system("wget -O /tmp/openjdk11.tar.gz https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.23+9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.23_9.tar.gz")
+        wget.download(java_url, "/tmp/openjdk11.tar.gz")
+	with tarfile.open("/tmp/openjdk11.tar.gz", "r:gz") as tar:
+	    tar.extractall(path=java_dir)
+	#os.system(f"tar -xzf /tmp/openjdk11.tar.gz -C {java_dir} --strip-components=1")
     # Set environment variables
     os.environ["JAVA_HOME"] = java_dir
     os.environ["PATH"] = f"{java_dir}/bin:" + os.environ["PATH"]
