@@ -4,19 +4,38 @@ import os
 import subprocess
 
 # Check where java is installed
-java_path = subprocess.run(["update-alternatives", "--list", "java"], capture_output=True, text=True).stdout.strip()
+#java_path = subprocess.run(["update-alternatives", "--list", "java"], capture_output=True, text=True).stdout.strip()
 
 # Extract JAVA_HOME path
-java_home = os.path.dirname(os.path.dirname(java_path))
-os.environ["JAVA_HOME"] = java_home
+#java_home = os.path.dirname(os.path.dirname(java_path))
+#os.environ["JAVA_HOME"] = java_home
 
 # Optional: sanity check
-print(f"JAVA_HOME set to: {java_home}")
+#print(f"JAVA_HOME set to: {java_home}")
 
 #print(os.system("ls /usr/lib/jvm/"))
 #os.system("ls /usr/lib/jvm/java-11-openjdk-amd64/bin/java")
 #os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
 
+@st.cache_resource
+def setup_java():
+    java_dir = "/tmp/java-11"
+
+    # Only download & extract if not already done
+    if not os.path.exists(java_dir):
+        os.makedirs(java_dir, exist_ok=True)
+        # Download OpenJDK 11 (Adoptium build here, but you can change URL)
+        os.system("wget -O /tmp/openjdk11.tar.gz https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.23+9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.23_9.tar.gz")
+        os.system(f"tar -xzf /tmp/openjdk11.tar.gz -C {java_dir} --strip-components=1")
+    # Set environment variables
+    os.environ["JAVA_HOME"] = java_dir
+    os.environ["PATH"] = f"{java_dir}/bin:" + os.environ["PATH"]
+    # Optional: sanity check
+    subprocess.run(["java", "-version"], check=True)
+
+    return java_dir
+
+setup_java()
 @st.cache_resource
 def load_data():
     first_df = spark.read.parquet("./data/total_innings.parquet")
