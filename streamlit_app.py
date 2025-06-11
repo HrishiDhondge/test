@@ -2,6 +2,8 @@ import streamlit as st
 from pyspark.sql import SparkSession
 import os
 
+print(os.system("ls /usr/lib/jvm/"))
+os.system("ls /usr/lib/jvm/java-11-openjdk-amd64/bin/java")
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
 
 @st.cache_resource
