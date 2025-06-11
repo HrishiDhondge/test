@@ -6,27 +6,37 @@ import subprocess
 
 @st.cache_resource
 def setup_java():
-    java_dir = "/tmp/java-11"
     java_url = "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.23+9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.23_9.tar.gz"
+    
+    # Use current working directory
+    base_dir = os.getcwd()
+    download_path = os.path.join(base_dir, "openjdk11.tar.gz")
+    extract_root = os.path.join(base_dir, "java-11")
 
-    # Only download & extract if not already done
-    if not os.path.exists(java_dir):
-        os.makedirs(java_dir, exist_ok=True)
-        # Download OpenJDK 11 (Adoptium build here, but you can change URL)
-        #os.system("wget -O /tmp/openjdk11.tar.gz https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.23+9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.23_9.tar.gz")
-        wget.download(java_url, "/tmp/openjdk11.tar.gz")
-        with tarfile.open("/tmp/openjdk11.tar.gz", "r:gz") as tar:
-            tar.extractall(path=java_dir)
-	#os.system(f"tar -xzf /tmp/openjdk11.tar.gz -C {java_dir} --strip-components=1")
-    # Set environment variables
-    os.environ["JAVA_HOME"] = java_dir
-    os.environ["PATH"] = f"{java_dir}/bin:" + os.environ["PATH"]
-    # Optional: sanity check
-    subprocess.run(["java", "-version"], check=True)
+    if not os.path.exists(download_path):
+        st.write("Downloading Java 11...")
+        wget.download(java_url, download_path)
 
-    return java_dir
+    if not os.path.exists(extract_root):
+        st.write("Extracting Java 11...")
+        os.makedirs(extract_root, exist_ok=True)
+        with tarfile.open(download_path, "r:gz") as tar:
+            tar.extractall(path=extract_root)
 
+    extracted_dirs = os.listdir(extract_root)
+    full_java_dir = os.path.join(extract_root, extracted_dirs[0])
+
+    os.environ["JAVA_HOME"] = full_java_dir
+    os.environ["PATH"] = f"{full_java_dir}/bin:" + os.environ["PATH"]
+
+    subprocess.run([f"{full_java_dir}/bin/java", "-version"], check=True)
+
+    return full_java_dir
+
+# Call once
 setup_java()
+
+
 @st.cache_resource
 def load_data():
     first_df = spark.read.parquet("./data/total_innings.parquet")
