@@ -1,5 +1,8 @@
 import streamlit as st
 from pyspark.sql import SparkSession
+import os
+
+os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
 
 @st.cache_resource
 def load_data():

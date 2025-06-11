@@ -6,6 +6,9 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 
+[system]
+apt = ["openjdk-11-jdk", "procps"]
+
 [[package]]
 name = "altair"
 version = "5.5.0"
