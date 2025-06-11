@@ -13,11 +13,11 @@ def setup_java():
     extract_root = os.path.join(base_dir, "java-11")
 
     if not os.path.exists(download_path):
-        st.write("Downloading Java 11...")
+        # st.write("Downloading Java 11...")
         wget.download(java_url, download_path)
 
     if not os.path.exists(extract_root):
-        st.write("Extracting Java 11...")
+        # st.write("Extracting Java 11...")
         os.makedirs(extract_root, exist_ok=True)
         with tarfile.open(download_path, "r:gz") as tar:
             tar.extractall(path=extract_root)
