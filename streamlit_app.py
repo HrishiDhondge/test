@@ -1,6 +1,6 @@
 import streamlit as st
 from pyspark.sql import SparkSession
-import os
+import os, wget, tarfile
 import subprocess
 
 
