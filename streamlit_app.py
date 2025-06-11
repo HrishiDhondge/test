@@ -1,10 +1,21 @@
 import streamlit as st
 from pyspark.sql import SparkSession
 import os
+import subprocess
 
-print(os.system("ls /usr/lib/jvm/"))
-os.system("ls /usr/lib/jvm/java-11-openjdk-amd64/bin/java")
-os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
+# Check where java is installed
+java_path = subprocess.run(["update-alternatives", "--list", "java"], capture_output=True, text=True).stdout.strip()
+
+# Extract JAVA_HOME path
+java_home = os.path.dirname(os.path.dirname(java_path))
+os.environ["JAVA_HOME"] = java_home
+
+# Optional: sanity check
+print(f"JAVA_HOME set to: {java_home}")
+
+#print(os.system("ls /usr/lib/jvm/"))
+#os.system("ls /usr/lib/jvm/java-11-openjdk-amd64/bin/java")
+#os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
 
 @st.cache_resource
 def load_data():
